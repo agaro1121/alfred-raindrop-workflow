@@ -24,7 +24,6 @@ def getAllBookmarks():
     ids = getCollectionIds()
     listOfCollections = list(map(lambda id: raindrop_client.getRaindrops(id)['items'], ids))
     collections = list(itertools.chain(*listOfCollections))
-    print(collections)
     return list(map(extractBookmarkInfo, collections))
 
 def search(term):

@@ -18,7 +18,6 @@ def authenticate(credentials):
     """
     response = requests.post(url=auth, json=credentials)
     responseCookies = response.cookies
-    print(f'responseCookies={responseCookies}')
     expireDateTime=next(x for x in responseCookies if x.name == 'connect.sid').expires
     return {
               'expires': expireDateTime,
