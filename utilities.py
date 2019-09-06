@@ -20,7 +20,17 @@ def deleteFile(fileName):
     if os.path.exists(fileName):
         os.remove(fileName)
     else:
-        print("The file does not exist") 
+        print("The file does not exist")
+
+def readFile(fileName):
+    return open(fileName, "r")
+
+def loadJsonFromFile(fileName):
+    try:
+        f = readFile(fileName)
+        return json.load(f)
+    except json.decoder.JSONDecodeError:
+        print(f'No JSON in file or cant parse it. FileName:{fileName}') 
 
 def createCredentialsFile():
     return createFile(credentialsFile)
@@ -28,39 +38,45 @@ def createCredentialsFile():
 def deleteCredentialsFile():
     return deleteFile(credentialsFile)
 
+def loadCredentialsFile():
+    return loadJsonFromFile(credentialsFile)
+
 def createCookieFile():
     return createFile(cookieFile)
 
 def deleteCookieFile():
     return deleteFile(cookieFile)
 
+def loadCookieFile():
+    return loadJsonFromFile(cookieFile)
 
 def bootstrap():
         createWorkFlowPath()
         createCredentialsFile()
         createCookieFile()
 
-def upsertCredentialsFile(username, password):
+def upsertCredentialsFile(email, password):
     deleteCredentialsFile()
     f = createCredentialsFile()
-    return f.write(json.dumps({'username': username, 'password': password}))
+    return f.write(json.dumps({'email': email, 'password': password}))
 
 def upsertCookieFile(cookie):
     """
     Parameters
     ----------
     cookie: Dictionary
-        Contains 'connect.sid' and 'Expires'
-        Example: Expires=Fri, 06 Dec 2019 03:12:21
+        Contains 'connect.sid' and 'expires'
+        Example: expires=1575607444
     """
     deleteCookieFile()
     f = createCookieFile()
     return f.write(json.dumps(cookie))
 
 def parseExpires(expires):
-    return datetime.strptime(expires, '%a, %d %b %Y %H:%M:%S')
+    return datetime.fromtimestamp(expires)
 
 def isCookieExpired(cookie):
-    timestampString=cookie['Expires']
-    d = parseExpires(timestampString)
+    timestampString=cookie['expires']
+    d = datetime.fromtimestamp(timestampString)
     return d <= datetime.today()
+
