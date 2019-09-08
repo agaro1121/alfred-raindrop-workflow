@@ -3,9 +3,9 @@ import json
 import utilities
 
 base='https://api.raindrop.io/v1'
-auth=f'{base}/auth/login'
-collectionsApi=f'{base}/collections'
-raindropsApi=f'{base}/raindrops'
+auth=base+"/auth/login"
+collectionsApi=base+"/collections"
+raindropsApi=base+"/raindrops"
 
 cookie=utilities.loadCookieFile()
 
@@ -34,13 +34,13 @@ def getCollections():
     return authenticatedGet(collectionsApi)
 
 def getRaindrops(collectionId):
-    return authenticatedGet(f'{raindropsApi}/{collectionId}')
+    return authenticatedGet((raindropsApi + "/%d").format(collectionId))
 
 # https://api.raindrop.io/v1/raindrops?search=[{"key":"word","val":"swagger"}]
-def search(term):
-  jar = requests.cookies.RequestsCookieJar()
-  jar.set('connect.sid', cookie['connect.sid'])
-  queryString={ "search": f'%5B%7B%22key%22%3A%22word%22%2C%22val%22%3A%22{term}%22%7D%5D' }
+# def search(term):
+  # jar = requests.cookies.RequestsCookieJar()
+  # jar.set('connect.sid', cookie['connect.sid'])
+  # queryString={ "search": f'%5B%7B%22key%22%3A%22word%22%2C%22val%22%3A%22{term}%22%7D%5D' }
   # return authenticatedGet(raindropsApi, params=queryString)
-  url="https://api.raindrop.io/v1/raindrops?search=[{\"key\":\"word\",\"val\":\"dimension\"}]"
-  return requests.get(url=url, cookies=jar, params=queryString).json()
+  # url="https://api.raindrop.io/v1/raindrops?search=[{\"key\":\"word\",\"val\":\"dimension\"}]"
+  # return requests.get(url=url, cookies=jar, params=queryString).json()

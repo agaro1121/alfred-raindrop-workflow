@@ -5,9 +5,9 @@ import datetime
 from datetime import datetime
 
 home=os.environ['HOME']
-workflowPath=f'{home}/.raindrop'
-credentialsFile=f'{workflowPath}/.credentials'
-cookieFile=f'{workflowPath}/.cookie'
+workflowPath=home+"/.raindrop"
+credentialsFile=workflowPath+"/.credentials"
+cookieFile=workflowPath+"/.cookie"
 
 def createWorkFlowPath():
     if not os.path.exists(workflowPath):
@@ -29,8 +29,9 @@ def loadJsonFromFile(fileName):
     try:
         f = readFile(fileName)
         return json.load(f)
-    except json.decoder.JSONDecodeError:
-        print(f'No JSON in file or cant parse it. FileName:{fileName}') 
+    # except json.decoder.JSONDecodeError:
+    except:
+        print("No JSON in file or cant parse it. FileName:".format(fileName))
 
 def createCredentialsFile():
     return createFile(credentialsFile)
