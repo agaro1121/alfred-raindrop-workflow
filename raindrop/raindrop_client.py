@@ -14,7 +14,7 @@ def authenticate(credentials):
     Parameters
     __________
     credentials: Dictionary
-        Contains username and password
+        Contains email and password
     """
     response = requests.post(url=auth, json=credentials)
     responseCookies = response.cookies
@@ -37,10 +37,11 @@ def getRaindrops(collectionId):
     return authenticatedGet((raindropsApi + "/%d").format(collectionId))
 
 # https://api.raindrop.io/v1/raindrops?search=[{"key":"word","val":"swagger"}]
-# def search(term):
-  # jar = requests.cookies.RequestsCookieJar()
-  # jar.set('connect.sid', cookie['connect.sid'])
-  # queryString={ "search": f'%5B%7B%22key%22%3A%22word%22%2C%22val%22%3A%22{term}%22%7D%5D' }
-  # return authenticatedGet(raindropsApi, params=queryString)
-  # url="https://api.raindrop.io/v1/raindrops?search=[{\"key\":\"word\",\"val\":\"dimension\"}]"
-  # return requests.get(url=url, cookies=jar, params=queryString).json()
+def search(term):
+  """
+  This is really fucking ugly but a necessary evil since I haven't
+  figured out why python.requests doesn't like this as a query string
+  """
+  s=raindropsApi+'?search=%5B%7B%22key%22%3A%22word%22%2C%22val%22%3A%22'
+  ss='%22%7D%5D&sort=lastUpdate'
+  return authenticatedGet(s+term+ss)

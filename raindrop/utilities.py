@@ -20,7 +20,7 @@ def deleteFile(fileName):
     if os.path.exists(fileName):
         os.remove(fileName)
     else:
-        print("The file does not exist")
+        return None
 
 def readFile(fileName):
     return open(fileName, "r")
@@ -31,7 +31,7 @@ def loadJsonFromFile(fileName):
         return json.load(f)
     # except json.decoder.JSONDecodeError:
     except:
-        print("No JSON in file or cant parse it. FileName:".format(fileName))
+        return None
 
 def createCredentialsFile():
     return createFile(credentialsFile)
@@ -77,7 +77,20 @@ def parseExpires(expires):
     return datetime.fromtimestamp(expires)
 
 def isCookieExpired(cookie):
-    timestampString=cookie['expires']
-    d = datetime.fromtimestamp(timestampString)
+    timestamp=cookie['expires']
+    d = datetime.fromtimestamp(timestamp)
     return d <= datetime.today()
 
+def hasCredentials():
+    json = loadCredentialsFile()
+    if json is None:
+        return False
+    else:
+        return True
+
+def hasValidCookie():
+    json = loadCookieFile()
+    if json is None:
+        return False
+    else:
+        return not isCookieExpired(json)

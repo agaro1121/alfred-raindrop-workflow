@@ -1,8 +1,10 @@
 # encoding: utf-8
 
 import sys
-from workflow import Workflow, ICON_WEB
-# import raindrop_service
+import argparse
+from workflow import Workflow, ICON_WEB, ICON_WARNING
+from workflow.notify import notify
+import utilities
 
 def search_key_for_post(bookmark):
      """Generate a string search key for a bookmark"""
@@ -13,34 +15,52 @@ def search_key_for_post(bookmark):
      return u' '.join(elements)
 
 def main(wf):
+    parser = argparse.ArgumentParser()
 
-    # Retrieve bookmarks from cache if available and no more than 60
-    # seconds old
-    bookmarks = wf.cached_data('bookmarks', raindrop_service.getAllBookmarksParallel2, max_age=5)
+    # usage: script.py -e aa@bb.com -p some-password
+    parser.add_argument('-e', '--email', default=None)
+    parser.add_argument('-p', '--password', default=None)
+    # add an optional query and save it to 'query'
+    parser.add_argument('--query', dest='query', nargs='?')
+    args = parser.parse_args(wf.args)
 
-    # Get query from Alfred
-    if len(wf.args):
-        query = wf.args[0]
-    else:
-        query = None
+    if args.email and args.password:
+        utilities.upsertCredentialsFile(args.email, args.password)
+        raindrop_service.persistCookies()
+        if not utilities.hasValidCookie():
+            print("Could not login. Please try again")
+            return 0
+        else:
+            print("Successfully logged in!")
+            return 0
 
-    if query:
-        wf.logger.debug("received query="+query)
-        filteredBookmarks = wf.filter(query, bookmarks, key=search_key_for_post)
-        # Need to do this for now because filteredBookmarks is full of dupes :-(
-        temp = {}
-        for bk in filteredBookmarks:
-            temp.update({
-                bk['title']: bk
-            })
-        for bookmark in temp.values():
-            wf.add_item(title=bookmark['title'],
-                    subtitle=bookmark['summary'],
-                    icon=ICON_WEB,
+    # Check if user has credentials and a cookie that hasn't expired yet
+    if not utilities.hasCredentials():
+        wf.add_item(title="You are not logged in",
+                    subtitle="Please use: brlogin email password",
                     valid=True,
-                    arg=bookmark['link'])
-        # Send the results to Alfred as XML
+                    icon=ICON_WARNING)
         wf.send_feedback()
+        return 0
+    else:
+        # Refresh cookie if something is wrong or it's expired
+        if not utilities.hasValidCookie():
+            raindrop_service.persistCookies()
+        
+        # TODO: cache bookmarks
+        query=args.query
+        wf.logger.debug("received query="+query)
+
+        if len(query) > 0:    
+            filteredBookmarks = raindrop_service.search(query)
+            for bookmark in filteredBookmarks:
+                wf.add_item(title=bookmark['title'],
+                        subtitle=bookmark['summary'],
+                        icon=ICON_WEB,
+                        valid=True,
+                        arg=bookmark['link'])
+            # Send the results to Alfred as XML
+            wf.send_feedback()
 
 if __name__ == u"__main__":
     wf = Workflow(libraries=['./lib'])
