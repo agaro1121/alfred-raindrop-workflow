@@ -34,7 +34,7 @@ def getCollections():
     return authenticatedGet(collectionsApi)
 
 def getRaindrops(collectionId):
-    return authenticatedGet((raindropsApi + "/%d").format(collectionId))
+    return authenticatedGet(raindropsApi + "/" + str(collectionId))
 
 # https://api.raindrop.io/v1/raindrops?search=[{"key":"word","val":"swagger"}]
 def search(term):

@@ -10,7 +10,7 @@ def search_key_for_post(bookmark):
      """Generate a string search key for a bookmark"""
      elements = []
      elements.append(bookmark['title'])  # title of bookmark
-     elements.append(bookmark['link'])  # bookmark tags
+    #  elements.append(bookmark['link'])  # bookmark tags
     #  elements.append(bookmark['summary'])  # description
      return u' '.join(elements)
 
@@ -51,8 +51,11 @@ def main(wf):
         query=args.query
         wf.logger.debug("received query="+query)
 
+        bookmarks = wf.cached_data('bookmarks', raindrop_service.getAllBookmarksParallel, max_age=60)
+
         if len(query) > 0:    
-            filteredBookmarks = raindrop_service.search(query)
+            # filteredBookmarks = raindrop_service.search(query)
+            filteredBookmarks = wf.filter(query, bookmarks, key=search_key_for_post)
             for bookmark in filteredBookmarks:
                 wf.add_item(title=bookmark['title'],
                         subtitle=bookmark['summary'],

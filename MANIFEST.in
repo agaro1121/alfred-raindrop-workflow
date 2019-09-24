@@ -1,2 +1,0 @@
-include raindrop/workflow/version
-recursive-include lib *
