@@ -15,6 +15,10 @@ def search_key_for_post(bookmark):
      return u' '.join(elements)
 
 def main(wf):
+    '''
+    The 'br' and 'brlogin' comamnds are located in the actual Alfred Workflow
+    To add a new command, go there
+    '''
     parser = argparse.ArgumentParser()
 
     # usage: script.py -e aa@bb.com -p some-password
@@ -51,7 +55,7 @@ def main(wf):
         query=args.query
         wf.logger.debug("received query="+query)
 
-        bookmarks = wf.cached_data('bookmarks', raindrop_service.getAllBookmarksParallel, max_age=60)
+        bookmarks = wf.cached_data('bookmarks', raindrop_service.getAllBookmarksParallel, max_age=300)
 
         if len(query) > 0:    
             # filteredBookmarks = raindrop_service.search(query)
